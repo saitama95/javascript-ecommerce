@@ -62,7 +62,7 @@ class UI{
                 btn.disabled = true;
             }
             btn.addEventListener('click',(event)=>{
-                event.target.innerText = "In Cart";
+                event.target.innerText = "In cart";
                 btn.disabled = true;
                 //get product from product
                 let cartItem = {...Storage.getProduct(id),amount:1};
@@ -109,38 +109,61 @@ class UI{
         cartOverlay.classList.add('transparentBcg') 
         cartDom.classList.add('showCart') 
     }
-    setupAPP(){
+    setupAPP() {
         cart = Storage.getCart()
         this.setCartValue(cart);
         this.populateCart(cart);
         cartbtn.addEventListener('click',this.showCart)
         closeCartbtn.addEventListener('click',this.hideCart)
     }
-    populateCart(cart){
+    populateCart(cart) {
         cart.forEach(item=>this.addCartItem(item))
     }
-    hideCart(){
+    hideCart() {
         cartOverlay.classList.remove('transparentBcg') 
         cartDom.classList.remove('showCart') 
     }
     cartLogic(){
-        
+        clearCartbtn.addEventListener('click',()=>{
+            this.clearCart();
+        }); 
+    }
+    clearCart(){
+        let cartItem = cart.map(item=>item.id);
+        cartItem.forEach(id=>this.removeItem(id));
+        while(cartContent.children.length>0){
+            cartContent.removeChild(cartContent.children[0])
+        }
+        this.hideCart();
+    }
+    removeItem(id){
+        cart = cart.filter(item=>item.id!==id);
+        this.setCartValue(cart);
+        Storage.saveCart(cart);
+        let button = this.getSingleButton(id);
+        button.disabled = false;
+        button.innerHTML = `<i class="fas fa-shopping-cart">
+            add To cart
+        </i>`;
+    }
+    getSingleButton(id) {
+        return buttonDOM.find(button => button.dataset.id === id);
     }
 }
 
-//local stroge
+//local storage
 class Storage {
-    static saveProduct(products){
+    static saveProduct(products) {
         localStorage.setItem('products',JSON.stringify(products));
     }
-    static getProduct(id){
+    static getProduct(id) {
         let products =  JSON.parse(localStorage.getItem('products'));
         return products.find(product => product.id === id);
     }
-    static saveCart(cart){
+    static saveCart(cart) {
         localStorage.setItem('cart',JSON.stringify(cart));
     }
-    static getCart(){
+    static getCart() {
         return localStorage.getItem('cart') ? JSON.parse(localStorage.getItem('cart')) : [] ;
     }
 }
